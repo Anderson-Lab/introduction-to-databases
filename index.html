@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Introduction to Databases by Anderson-Lab</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Introduction to Databases</h1>
+      <h2 class="project-tagline"></h2>
+      <a href="https://github.com/Anderson-Lab/introduction-to-databases" class="btn">View on GitHub</a>
+      <a href="https://github.com/Anderson-Lab/introduction-to-databases/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/Anderson-Lab/introduction-to-databases/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Introduction</h1>
+
+<p>It is often said that data is the new oil. If this is the case, then the database is how we store, collect, organize, and basically do everything with the oil until it goes into your car.</p>
+
+<p>For a long time, relational databases were the only game in town. It is not the case anymore. There are now a variety of options, schemaless, horizontal scaling, high availability, etc. These are generally known as NoSQL databases. On this page, we will attempt to compare different databases, and more importantly try to answer the all important question:</p>
+
+<p>What database or combination of databases best resolves your problem?</p>
+
+<p>To answer this, we need to learn a little more.</p>
+
+<p>What type of datastore is this?</p>
+
+<ul>
+<li>Relational (e.g., postgres)</li>
+<li>Key-value (e.g., Riak, Redis)</li>
+<li>Columnar (e.g., HBase)</li>
+<li>Document-oriented (e.g., MongoDB, CouchDB)</li>
+<li>Graph (e.g., Neo4J)</li>
+</ul>
+
+<p>Databases are created for a purpose. So we need to understand their purpose to pick.</p>
+
+<p>How do you talk to it?</p>
+
+<p>How does it perform?</p>
+
+<p>How does it scale?</p>
+
+<p>Important to remember: Most of your problems can be solved by multiple databases, so it is a matter of finding the best for the situation.</p>
+
+<h3>
+<a id="relational-databases" class="anchor" href="#relational-databases" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Relational Databases</h3>
+
+<ul>
+<li>Traditional</li>
+<li>Relational Database Management Systems (RDBMSs) are set-theory-based.</li>
+<li>Tables with rows and columns.</li>
+<li>Write queries in Structured Query Language (SQL)</li>
+<li>Data types are numeric, strings, dates, blobs, etc</li>
+<li>Based on mathematical relational (set) theory</li>
+</ul>
+
+<h3>
+<a id="key-value" class="anchor" href="#key-value" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Key-Value</h3>
+
+<ul>
+<li>Pairs keys to values in much the same way as a map (or hastable)</li>
+<li>Very simple and great performance</li>
+<li>No complex query and aggregation needs</li>
+</ul>
+
+<h3>
+<a id="columnar" class="anchor" href="#columnar" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Columnar</h3>
+
+<ul>
+<li>Data from a given column (in the two-dimensional table sense) is stored together.</li>
+<li>By contrast, a row-oriented database (like an RDBMS) keeps information about a row together.</li>
+<li>Adding columns is quite inexpensive and is done on a row-by-row basis.</li>
+<li>Each row can have a different set of columns, or none at all, allowing tables to remain sparse without incurring a storage cost for null values. </li>
+<li>Columnar is about midway between relational and key-value. </li>
+</ul>
+
+<h3>
+<a id="document-oriented-databases-store-well-documents" class="anchor" href="#document-oriented-databases-store-well-documents" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Document-oriented databases store, well, documents</h3>
+
+<ul>
+<li>A document is like a hash</li>
+<li>Documents can contain nested structures</li>
+<li>Exhibit a high degree of flexibility, allowing for variable domains. </li>
+</ul>
+
+<h3>
+<a id="graph-databases" class="anchor" href="#graph-databases" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Graph Databases</h3>
+
+<ul>
+<li>Less commonly used database styles</li>
+<li>Good at dealing with highly interconnected data. </li>
+<li>A graph database consists of nodes and relationships between nodes. </li>
+<li>Strength of graph databases is traversing through the nodes by following relationships. </li>
+</ul>
+
+<h1>
+<a id="postgresql" class="anchor" href="#postgresql" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>PostgreSQL</h1>
+
+<ul>
+<li>Common</li>
+<li>Old and trusty tool</li>
+<li>Solves a number of problems</li>
+<li>We can't move on to fancy new databases until we understand this</li>
+<li>Battle-tested</li>
+<li>It’s fast and reliable</li>
+<li>Can handle terabytes of data</li>
+<li>Has been proven to run in high-profile production</li>
+<li>Companies using it: Skype, France’s Caisse Nationale d’Allocations Familiales (CNAF), and the United States’ Federal Aviation Administration (FAA). </li>
+</ul>
+
+<h3>
+<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Getting Started</h3>
+
+<p>Create the book schema</p>
+
+<pre><code>$ createdb book
+</code></pre>
+
+<p>Run your first query</p>
+
+<pre><code>psql book -c "SELECT '1'::cube;" 
+</code></pre>
+
+<h3>
+<a id="relations-crud-and-joins" class="anchor" href="#relations-crud-and-joins" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Relations, CRUD, and Joins</h3>
+
+<p>Postgres provides a back-end server that does all of the work and a command-line shell to connect to the running. It's a good thing we are good at this!</p>
+
+<p>Connect to the database and the schema book</p>
+
+<pre><code>psql book
+</code></pre>
+
+<ul>
+<li>Typing \h lists information about SQL commands</li>
+<li>Follows the SQL convention of calling relations TABLEs</li>
+<li>Attributes are COLUMNs</li>
+<li>Tuples are ROWs.</li>
+<li>You may encounter the mathematical terms relations, attributes, and tuples. </li>
+</ul>
+
+<p>PostgreSQL is a design-first datastore. Design the schema first. Then enter data. Here is how you create a table:</p>
+
+<pre><code>CREATE TABLE countries ( country_code char(2) PRIMARY KEY, country_name text UNIQUE );
+</code></pre>
+
+<p>See mathematical relations in book for foundations of relational database</p>
+
+<p>Once we have a table, we can insert it into it</p>
+
+<pre><code>INSERT INTO countries (country_code, country_name) 
+VALUES ('us','United States'), ('mx','Mexico'), ('au','Australia'), ('gb','United Kingdom'), ('de','Germany'), ('ll','Loompaland'); 
+</code></pre>
+
+<p>What if you try to insert a duplicate?</p>
+
+<pre><code>INSERT INTO countries VALUES ('uk','United Kingdom');
+ERROR: duplicate key value violates unique constraint "countries_country_name_key" DETAIL: Key (country_name)=(United Kingdom) already exists.
+</code></pre>
+
+<p>How can we get data back out?</p>
+
+<pre><code>SELECT * FROM countries;
+country_code | country_name 
+--------------+--------------
+us | United States 
+mx | Mexico 
+au | Australia 
+gb | United Kingdom 
+de | Germany 
+ll | Loompaland 
+(6 rows)
+</code></pre>
+
+<p>How to remove from the database?</p>
+
+<pre><code>DELETE FROM countries WHERE country_code = 'll'; 
+</code></pre>
+
+<p>CRUD: Create, Read, Update, and Delete.</p>
+
+<ul>
+<li>Inserting new records (creating)</li>
+<li>Reading existing records (reading)</li>
+<li>Modifying existing records (updating)</li>
+<li>Removing records you no longer need (deleting)</li>
+</ul>
+
+<p>It gets more complex</p>
+
+<pre><code>CREATE TABLE cities ( 
+  name text NOT NULL, 
+  postal_code varchar(9) CHECK (postal_code &lt;&gt; ''), 
+  country_code char(2) REFERENCES countries, 
+  PRIMARY KEY (country_code, postal_code) ); 
+</code></pre>
+
+<ul>
+<li>Constrained the name in cities by disallowing NULL values. </li>
+<li>Constrained postal_code by checking that no values are empty strings (&lt;&gt; means not equal). </li>
+<li>PRIMARYKEY uniquely identifies a row - created a compound key: country_code + postal_code.</li>
+</ul>
+
+<p>Foreign keys and referential integrity</p>
+
+<pre><code>INSERT INTO cities VALUES ('Toronto','M4C1B5','ca');
+ERROR: insert or update on table "cities" violates foreign key constraint "cities_country_code_fkey" DETAIL: Key (country_code)=(ca) is not present in table "countries".
+</code></pre>
+
+<ul>
+<li>country_code REFERENCES countries</li>
+<li>the country_code must exist in the countries table. </li>
+<li>Called maintaining referential integrity.</li>
+</ul>
+
+<p>See Figure 1.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/Anderson-Lab/introduction-to-databases">Introduction to Databases</a> is maintained by <a href="https://github.com/Anderson-Lab">Anderson-Lab</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>

@@ -18,7 +18,7 @@
 
       <header>
         <h1>Introduction to Databases</h1>
-        <p></p>
+        <p>Comparative Database Technologies</p>
       </header>
 
       <div id="banner">
@@ -229,7 +229,7 @@ ll | Loompaland
 <li>PRIMARYKEY uniquely identifies a row - created a compound key: country_code + postal_code.</li>
 </ul>
 
-<p>Foreign keys and referential integrity</p>
+<p><b>Foreign keys and referential integrity</b></p>
 
 <pre><code>INSERT INTO cities VALUES ('Toronto','M4C1B5','ca');
 ERROR: insert or update on table "cities" violates foreign key constraint "cities_country_code_fkey" DETAIL: Key (country_code)=(ca) is not present in table "countries".
@@ -268,6 +268,18 @@ us | Portland | 97205 | United States
 <pre><code>SELECT e.title, v.name FROM events e LEFT JOIN venues v ON e.venue_id = v.venue_id;
 </code></pre>
 
+<p>Example of left join:</p>
+
+<pre><code>SELECT e.title, v.name
+FROM events e LEFT JOIN venues v
+ON e.venue_id = v.venue_id;
+title            | name
+-----------------+----------------
+LARP Club        | Voodoo Donuts
+April Fools Day  |
+Christmas Day    |
+</code></pre>
+
 <h3>
 <a id="erd" class="anchor" href="#erd" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ERD</h3>
 
@@ -276,7 +288,67 @@ us | Portland | 97205 | United States
 <h3>
 <a id="indexes-and-b-trees" class="anchor" href="#indexes-and-b-trees" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Indexes and B-trees</h3>
 
-<p>An index is a special data structure built to avoid a full table scan when performing a query</p>
+<p>Consider the statement:</p>
+
+<pre><code>SELECT * FROM events WHERE event_id = 2;
+</code></pre>
+
+<p>How many records does PostgreSQL have to look through?</p>
+
+<p>An index is a special data structure built to avoid a full table scan when performing a query. Without an index you have to check every row for a match. For indices, we use a B-tree data structure. See Figure 3.</p>
+
+<p>Here is a good summary of concepts. <b>Term Definition</b></p>
+
+<ul>
+<li>Column - A domain of values of a certain type, sometimes called an attribute</li>
+<li>Row - An object comprised as a set of column values, sometimes called
+a tuple</li>
+<li>Table A set of rows with the same columns, sometimes called a relation</li>
+<li>Primary key - The unique value that pinpoints a specific row</li>
+<li>CRUD - Create, Read, Update, Delete</li>
+<li>SQL - Structured Query Language, the lingua franca of a relational database</li>
+<li>Join Combining two tables into one by some matching columns</li>
+<li>Left join - Combining two tables into one by some matching columns or NULL if nothing matches the left table </li>
+<li>Index - A data structure to optimize selection of a specific set of columns</li>
+<li>B-tree - A good standard index; values are stored as a balanced tree
+data structure; very flexible</li>
+</ul>
+
+<h4>
+<a id="aggregate-functions" class="anchor" href="#aggregate-functions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Aggregate Functions</h4>
+
+<pre><code>title            | starts              |           ends      | venue
+-----------------+---------------------+---------------------+---------------
+Wedding          | 2012-02-26 21:00:00 | 2012-02-26 23:00:00 | Voodoo Donuts
+Dinner with Mom  | 2012-02-26 18:00:00 | 2012-02-26 20:30:00 | My Place
+Valentine’s Day  | 2012-02-14 00:00:00 | 2012-02-14 23:59:00 |
+</code></pre>
+
+<p>Consider the following statements, where % is a wildcard:</p>
+
+<pre><code>SELECT count(title)
+FROM events
+WHERE title LIKE '%Day%';
+</code></pre>
+
+<pre><code>SELECT min(starts), max(ends)
+FROM events INNER JOIN venues
+ON events.venue_id = venues.venue_id
+WHERE venues.name = 'Crystal Ballroom';
+</code></pre>
+
+<p>These are great, but limited on their own. Consider what if we wanted to count by vendor ID:</p>
+
+<pre><code>SELECT count(*) FROM events WHERE venue_id = 1;
+SELECT count(*) FROM events WHERE venue_id = 2;
+SELECT count(*) FROM events WHERE venue_id = 3;
+SELECT count(*) FROM events WHERE venue_id IS NULL;
+</code></pre>
+
+<p>This is pretty annoying. What we really need is a group by statement!</p>
+
+<pre><code>SELECT venue_id FROM events GROUP BY venue_id;
+</code></pre>
       </section>
       <footer>
         <p>Project maintained by <a href="https://github.com/Anderson-Lab">Anderson-Lab</a></p>

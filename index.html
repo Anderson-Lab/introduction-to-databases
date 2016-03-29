@@ -349,6 +349,192 @@ SELECT count(*) FROM events WHERE venue_id IS NULL;
 
 <pre><code>SELECT venue_id FROM events GROUP BY venue_id;
 </code></pre>
+
+<h1>
+<a id="riak" class="anchor" href="#riak" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Riak</h1>
+
+<ul>
+<li>Pronounced "Ree-ahck"</li>
+<li>Distributed key-value database</li>
+<li>Values can be anything - plain text, json, XML, images, video clips</li>
+<li>Accessible through simple HTTP interface</li>
+<li>Fault-tolerant - servers may go up or down at any moment - no need to worry about your cluster</li>
+<li>There are some downsides - no robust support for ad hoc queries, key-value stores, no foreign keys</li>
+</ul>
+
+<h3>
+<a id="riak-and-the-web" class="anchor" href="#riak-and-the-web" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Riak and the Web</h3>
+
+<ul>
+<li>Query via URLs, headers, verbs, and Riak returns in standard HTTP response codes</li>
+<li>Easy to setup, easy to manage, can grow with your needs</li>
+<li>Ever used SimpleDB or S3 from Amazon? There are a lot of similarities because Riak is inspired by Amazon's Dynamo paper.</li>
+</ul>
+
+<h3>
+<a id="rest" class="anchor" href="#rest" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>REST</h3>
+
+<ul>
+<li>REpresentational State Transfer</li>
+<li>
+<i>de facto</i> architecture of web applications</li>
+<li>REST is a guideline for mapping resources to URLs and interacting with them using CRUD verbs: POST (Create), GET (Read), PUT (Update), and DELETE (Delete).</li>
+<li>We are going to use the good old curl command to speak directly to Riak's server.</li>
+</ul>
+
+<h3>
+<a id="put" class="anchor" href="#put" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>PUT</h3>
+
+<p>PUT parameter tells cURL that we want to perform an HTTP PUT action to store and retrieve on an explicit key.</p>
+
+<pre><code>curl -v -X PUT http://localhost:8091/riak/favs/db \
+-H "Content-Type: text/html" \
+-d "&lt;html&gt;&lt;body&gt;&lt;h1&gt;My new favorite DB is RIAK&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;"
+</code></pre>
+
+<p>Parameters:</p>
+
+<ul>
+<li>-H attribute sets the following text as HTTP header information</li>
+<li>-d is the value</li>
+<li>-X PUT is what tells cURL we are using the PUT operation.</li>
+</ul>
+
+<h3>
+<a id="buckets" class="anchor" href="#buckets" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Buckets</h3>
+
+<p>Riak is key-value. It breaks up keys into buckets to avoid key collisions. For example, the key java for the language and the drink java.</p>
+
+<p>Let's create a bucket</p>
+
+<pre><code>http://SERVER:PORT/riak/BUCKET/KEY
+</code></pre>
+
+<p>You don't need to explicitly create a bucket. All you need to do is execute a PUT.</p>
+
+<pre><code>curl -v -X PUT http://localhost:8091/riak/animals/ace \
+-H "Content-Type: application/json" \
+-d '{"nickname" : "The Wonder Dog", "breed" : "German Shepherd"}'
+</code></pre>
+
+<p>We can list the buckets that we've got using:</p>
+
+<pre><code>curl -X GET http://localhost:8091/riak?buckets=true
+</code></pre>
+
+<p>If you aren't picky about keys, you can get Riak to autocreate.</p>
+
+<h3>
+<a id="get-to-retrieve-a-key" class="anchor" href="#get-to-retrieve-a-key" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>GET to retrieve a key</h3>
+
+<pre><code>curl http://localhost:8091/riak/animals/6VZc2o7zKxq2B34kJrm1S0ma3PO
+</code></pre>
+
+<h3>
+<a id="delete-is-also-easy" class="anchor" href="#delete-is-also-easy" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>DELETE is also easy</h3>
+
+<pre><code>curl -i -X DELETE http://localhost:8091/riak/animals/6VZc2o7zKxq2B34kJrm1S0ma3PO
+</code></pre>
+
+<h3>
+<a id="forgotten-your-keys" class="anchor" href="#forgotten-your-keys" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Forgotten your keys</h3>
+
+<pre><code>curl http://localhost:8091/riak/animals?keys=true
+</code></pre>
+
+<h3>
+<a id="links" class="anchor" href="#links" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Links</h3>
+
+<p>Links are metadata that associate one key to other keys. Here is the basic structure.</p>
+
+<pre><code>Link: &lt;/riak/bucket/key&gt;; riaktag=\"whatever\"
+</code></pre>
+
+<p>The key that we are linking to is in the pointy brackets. Then the tag relates to this value and we can set it to anything.</p>
+
+<p>Links are one directional. So if want to set the fact that Cage 1 contains the dog polly and it is installing in room 101.</p>
+
+<pre><code>curl -X PUT http://localhost:8091/riak/cages/1 \
+-H "Content-Type: application/json" \
+-H "Link: &lt;/riak/animals/polly&gt;; riaktag=\"contains\"" \
+-d '{"room" : 101}'
+</code></pre>
+
+<p>You can also do multiple links.</p>
+
+<pre><code>$ curl -X PUT http://localhost:8091/riak/cages/2 \
+-H "Content-Type: application/json" \
+-H "Link:&lt;/riak/animals/ace&gt;;riaktag=\"contains\",
+&lt;/riak/cages/1&gt;;riaktag=\"next_to\"" \
+-d '{"room" : 101}'
+</code></pre>
+
+<p>Now you can retrieve all the links from cage 1.</p>
+
+<pre><code>$ curl http://localhost:8091/riak/cages/1/_,_,_
+--4PYi9DW8iJK5aCvQQrrP7mh7jZs
+Content-Type: multipart/mixed; boundary=Av1fawIA4WjypRlz5gHJtrRqklD
+--Av1fawIA4WjypRlz5gHJtrRqklD
+X-Riak-Vclock: a85hYGBgzGDKBVIcypz/fvrde/U5gymRMY+VwZw35gRfFgA=
+Location: /riak/animals/polly
+Content-Type: application/json
+Link: &lt;/riak/animals&gt;; rel="up"
+Etag: VD0ZAfOTsIHsgG5PM3YZW
+Last-Modified: Tue, 13 Dec 2011 17:53:59 GMT
+{"nickname" : "Sweet Polly Purebred", "breed" : "Purebred"}
+--Av1fawIA4WjypRlz5gHJtrRqklD--
+--4PYi9DW8iJK5aCvQQrrP7mh7jZs--
+</code></pre>
+
+<p>This is a bit of a mess, and we'll find an easier way to walk these links soon. But you could walk along these with cURL.</p>
+
+<p>You can also store metadata by using the X-Riak-Meta header prefix.</p>
+
+<p>There are a lot of MIME types in Riak including, but not limited to image/jpeg, etc.</p>
+
+<h3>
+<a id="mapreduce-and-server-clusters" class="anchor" href="#mapreduce-and-server-clusters" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Mapreduce and server clusters</h3>
+
+<p>Mapreduce allows us to perform more powerful queries than standard key-value paradigm.</p>
+
+<p>The popularization is in part thanks to Google. Mapreduce has two parts:
+1. Convert a list of data into another type of list by way of a map() function
+2. Convert the second list to one or more scalar values by way of reduce</p>
+
+<p>Following this pattern allows you run them across a massive cluster of servers in parallel. For example, we could count up all Riak values by mapping each matching document to 1 and then reducing the sum of all these counts.</p>
+
+<pre><code>map = function(v) {
+var parsedData = JSON.parse(v.values[0].data);
+if(parsedData.country === 'CA')
+return [{count : 1}];
+else
+return [{count : 0}];
+}
+reduce = function(mappedVals) {
+var sums = {count : 0};
+for (var i in mappedVals) {
+sums[count] += mappedVals[i][count];
+}
+return [sums];
+}
+</code></pre>
+
+<p>This is opposite to how we used to run the select statement. Rather than grabbing data from the database and running it on a client, mapreduce is a pattern to pass an algorithm to all of the database nodes (IMPORTANT!).</p>
+
+<p>See figure 7 for a map reduce function example. Works great when we have a lot of data and don't want to move all of it from the server to the client.</p>
+
+<p>See Reducer Patterns on page 70.</p>
+
+<h3>
+<a id="consistency-and-durability" class="anchor" href="#consistency-and-durability" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Consistency and Durability</h3>
+
+<p>Riak server architecture removes single points of failures</p>
+
+<p>It is not possible to create
+a distributed database that is fully consistent, available, and partition tolerant.
+You can have only two (partition tolerant and consistent, partition tolerant
+and available, or consistent and available but not distributed). This is known
+as the CAP theorem (Consistency, Availability, Partition tolerance). </p>
       </section>
       <footer>
         <p>Project maintained by <a href="https://github.com/Anderson-Lab">Anderson-Lab</a></p>

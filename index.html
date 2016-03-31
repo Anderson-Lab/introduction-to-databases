@@ -387,7 +387,7 @@ SELECT count(*) FROM events WHERE venue_id IS NULL;
 
 <p>PUT parameter tells cURL that we want to perform an HTTP PUT action to store and retrieve on an explicit key.</p>
 
-<pre><code>curl -v -X PUT http://localhost:8091/riak/favs/db \
+<pre><code>curl -v -X PUT http://localhost:8098/riak/favs/db \
 -H "Content-Type: text/html" \
 -d "&lt;html&gt;&lt;body&gt;&lt;h1&gt;My new favorite DB is RIAK&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;"
 </code></pre>
@@ -412,14 +412,14 @@ SELECT count(*) FROM events WHERE venue_id IS NULL;
 
 <p>You don't need to explicitly create a bucket. All you need to do is execute a PUT.</p>
 
-<pre><code>curl -v -X PUT http://localhost:8091/riak/animals/ace \
+<pre><code>curl -v -X PUT http://localhost:8098/riak/animals/ace \
 -H "Content-Type: application/json" \
 -d '{"nickname" : "The Wonder Dog", "breed" : "German Shepherd"}'
 </code></pre>
 
 <p>We can list the buckets that we've got using:</p>
 
-<pre><code>curl -X GET http://localhost:8091/riak?buckets=true
+<pre><code>curl -X GET http://localhost:8098/riak?buckets=true
 </code></pre>
 
 <p>If you aren't picky about keys, you can get Riak to autocreate.</p>
@@ -427,19 +427,19 @@ SELECT count(*) FROM events WHERE venue_id IS NULL;
 <h3>
 <a id="get-to-retrieve-a-key" class="anchor" href="#get-to-retrieve-a-key" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>GET to retrieve a key</h3>
 
-<pre><code>curl http://localhost:8091/riak/animals/6VZc2o7zKxq2B34kJrm1S0ma3PO
+<pre><code>curl http://localhost:8098/riak/animals/6VZc2o7zKxq2B34kJrm1S0ma3PO
 </code></pre>
 
 <h3>
 <a id="delete-is-also-easy" class="anchor" href="#delete-is-also-easy" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>DELETE is also easy</h3>
 
-<pre><code>curl -i -X DELETE http://localhost:8091/riak/animals/6VZc2o7zKxq2B34kJrm1S0ma3PO
+<pre><code>curl -i -X DELETE http://localhost:8098/riak/animals/6VZc2o7zKxq2B34kJrm1S0ma3PO
 </code></pre>
 
 <h3>
 <a id="forgotten-your-keys" class="anchor" href="#forgotten-your-keys" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Forgotten your keys</h3>
 
-<pre><code>curl http://localhost:8091/riak/animals?keys=true
+<pre><code>curl http://localhost:8098/riak/animals?keys=true
 </code></pre>
 
 <h3>
@@ -454,7 +454,7 @@ SELECT count(*) FROM events WHERE venue_id IS NULL;
 
 <p>Links are one directional. So if want to set the fact that Cage 1 contains the dog polly and it is installing in room 101.</p>
 
-<pre><code>curl -X PUT http://localhost:8091/riak/cages/1 \
+<pre><code>curl -X PUT http://localhost:8098/riak/cages/1 \
 -H "Content-Type: application/json" \
 -H "Link: &lt;/riak/animals/polly&gt;; riaktag=\"contains\"" \
 -d '{"room" : 101}'
@@ -462,7 +462,7 @@ SELECT count(*) FROM events WHERE venue_id IS NULL;
 
 <p>You can also do multiple links.</p>
 
-<pre><code>$ curl -X PUT http://localhost:8091/riak/cages/2 \
+<pre><code>$ curl -X PUT http://localhost:8098/riak/cages/2 \
 -H "Content-Type: application/json" \
 -H "Link:&lt;/riak/animals/ace&gt;;riaktag=\"contains\",
 &lt;/riak/cages/1&gt;;riaktag=\"next_to\"" \
@@ -471,7 +471,7 @@ SELECT count(*) FROM events WHERE venue_id IS NULL;
 
 <p>Now you can retrieve all the links from cage 1.</p>
 
-<pre><code>$ curl http://localhost:8091/riak/cages/1/_,_,_
+<pre><code>$ curl http://localhost:8098/riak/cages/1/_,_,_
 --4PYi9DW8iJK5aCvQQrrP7mh7jZs
 Content-Type: multipart/mixed; boundary=Av1fawIA4WjypRlz5gHJtrRqklD
 --Av1fawIA4WjypRlz5gHJtrRqklD

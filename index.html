@@ -670,6 +670,34 @@ hbase* org.apache.hadoop.hbase.HConstants::ALL_VERSIONS }
 
 <pre><code>hbase&gt; enable 'wiki'
 </code></pre>
+
+<h4>
+<a id="why-column-families" class="anchor" href="#why-column-families" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Why column families?</h4>
+
+<ul>
+<li>Downsides to avoiding column family is missing out on fine-grained performance tuning.</li>
+<li>Each column family’s performance options are configured independently.</li>
+<li>Performance affected: read and write speed and disk space consumption.</li>
+<li>All operations in HBase are atomic at the row level.</li>
+<li>No matter how many columns are affected, the operation will have a consistent view of the particular
+row being accessed or modified. </li>
+<li>Helps clients reason intelligently about the data.</li>
+<li>For example: put operation affects several columns and doesn’t specify a timestamp, so all column values will have the same timestamp</li>
+</ul>
+
+<pre><code>hbase&gt; get 'wiki', 'Home'
+</code></pre>
+
+<p>Returns something like</p>
+
+<pre><code>COLUMN CELL
+revision:author timestamp=1296462042029, value=jimbo
+revision:comment timestamp=1296462042029, value=my first edit
+text: timestamp=1296462042029, value=Hello world
+3 row(s) in 0.0300 seconds
+</code></pre>
+
+<p>Not how everything has the same timestamp.</p>
       </section>
       <footer>
         <p>Project maintained by <a href="https://github.com/Anderson-Lab">Anderson-Lab</a></p>

@@ -535,6 +535,141 @@ a distributed database that is fully consistent, available, and partition tolera
 You can have only two (partition tolerant and consistent, partition tolerant
 and available, or consistent and available but not distributed). This is known
 as the CAP theorem (Consistency, Availability, Partition tolerance). </p>
+
+<h1>
+<a id="hbase" class="anchor" href="#hbase" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>HBase</h1>
+
+<ul>
+<li>Made for big jobs (multiple gigabytes or more)</li>
+<li>At a glance looks like a relational database because of similar terms, but this is not the case</li>
+<li>Hbase is the bizzaro RBDMS</li>
+</ul>
+
+<h3>
+<a id="why-use-hbase" class="anchor" href="#why-use-hbase" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Why use HBase?</h3>
+
+<ul>
+<li>Versioning</li>
+<li>Compression</li>
+<li>Garbage Collection for expired data</li>
+<li>In-memory tables</li>
+<li>Strong consistency guarantees</li>
+<li>For big queries HBase can outperform other DBs</li>
+<li>Often used for logging or large search database</li>
+</ul>
+
+<h3>
+<a id="some-details" class="anchor" href="#some-details" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Some details</h3>
+
+<ul>
+<li>Initially made for natural language processing database</li>
+<li>Based off Google's Big Table paper</li>
+<li>Column-oriented</li>
+<li>HBase is fault tolerent</li>
+<li>HBase is built on Hadoop</li>
+<li>Actively developed</li>
+<li>Used by big companies (Facebook, Yahoo!, Twitter, etc)</li>
+</ul>
+
+<h3>
+<a id="hbase-shell" class="anchor" href="#hbase-shell" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>HBase Shell</h3>
+
+<pre><code>${HBASE_HOME}/bin/hbase shell
+</code></pre>
+
+<h3>
+<a id="creating-a-table" class="anchor" href="#creating-a-table" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Creating a table</h3>
+
+<ul>
+<li>A table in HBase is a map of maps</li>
+<li>Keys are arbitrary strings that map to a row of data</li>
+<li>The row itself is a map in which keys are called columns and values are uninterpreted bytes</li>
+<li>Columns are grouped into column families often the family and column name are grouped together with a colon</li>
+<li>See Figure 13 on page 98</li>
+</ul>
+
+<h4>
+<a id="creating-a-table-and-adding-data-wiki-example" class="anchor" href="#creating-a-table-and-adding-data-wiki-example" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Creating a table and adding data wiki example</h4>
+
+<p>See Figure 14 on page 99</p>
+
+<p>Creating the table</p>
+
+<pre><code>hbase&gt; create 'wiki', 'text'
+</code></pre>
+
+<p>Table is currently empty. It has no rows. One column family called text.</p>
+
+<p>Inserting data into the table</p>
+
+<pre><code>hbase&gt; put 'wiki', 'Home', 'text:', 'Welcome to the wiki!'
+</code></pre>
+
+<p>You can query the db</p>
+
+<pre><code>hbase&gt; get 'wiki', 'Home', 'text:'
+</code></pre>
+
+<p>This returns something like</p>
+
+<pre><code>COLUMN CELL
+text: timestamp=1295774833226, value=Welcome to the wiki!
+1 row(s) in 0.0590 seconds
+</code></pre>
+
+<p>Notice the timestamp. HBase keeps track of historical data for you automatically, so you get versioning built right in.</p>
+
+<h4>
+<a id="cool-aside" class="anchor" href="#cool-aside" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Cool aside</h4>
+
+<p>Facebook using HBase tables for its messaging index table</p>
+
+<ul>
+<li>HBase allows you to override the timestamp field on both get and put operations adding another dimension that you can overload. This is what Facebook did.</li>
+</ul>
+
+<h4>
+<a id="a-more-complete-and-complicated-wiki-example" class="anchor" href="#a-more-complete-and-complicated-wiki-example" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>A more complete and complicated Wiki Example</h4>
+
+<p>See Figure 15 and Figure 16 on page 102</p>
+
+<p>To make changes to the schema, first disable the table</p>
+
+<pre><code>hbase&gt; disable 'wiki'
+</code></pre>
+
+<p>Then we can modify column family characteristics using</p>
+
+<pre><code>hbase&gt; alter 'wiki', { NAME =&gt; 'text', VERSIONS =&gt;
+hbase* org.apache.hadoop.hbase.HConstants::ALL_VERSIONS }
+</code></pre>
+
+<p>Note: Operations that alter column family characteristics can be very expensive
+because HBase has to create a new column family with the chosen specifications
+and then copy all the data over. In a production system, this may incur
+significant downtime. For this reason, settling on column family options up
+front is a good thing.</p>
+
+<p>For our next example, let's add a new column family called revision</p>
+
+<pre><code>hbase&gt; alter 'wiki', { NAME =&gt; 'revision', VERSIONS =&gt;
+hbase* org.apache.hadoop.hbase.HConstants::ALL_VERSIONS }
+</code></pre>
+
+<p>Some more important notes:</p>
+
+<ul>
+<li>we’re only adding a revision column family to the table schema, not individual columns. </li>
+<li>we expect each row to eventually contain a revision:author and revision:comment</li>
+<li>But it’s up to the client to honor this expectation</li>
+<li>Not enforced by a schema</li>
+<li>HBase will not stop you from doing bad things like adding in a new column</li>
+</ul>
+
+<p>Once you are done, you will want to enable the table</p>
+
+<pre><code>hbase&gt; enable 'wiki'
+</code></pre>
       </section>
       <footer>
         <p>Project maintained by <a href="https://github.com/Anderson-Lab">Anderson-Lab</a></p>

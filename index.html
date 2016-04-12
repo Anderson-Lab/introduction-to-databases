@@ -698,6 +698,330 @@ text: timestamp=1296462042029, value=Hello world
 </code></pre>
 
 <p>Note how everything has the same timestamp.</p>
+
+<h1>
+<a id="mongodb" class="anchor" href="#mongodb" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>MongoDB</h1>
+
+<ul>
+<li>Versatile</li>
+<li>Ease of use for both large and small</li>
+<li>New - post 2009</li>
+<li>Scalable and easy data access</li>
+<li>Document database</li>
+<li>Can have nested data</li>
+<li>No schema but querying ad hoc fashion is provided</li>
+<li>Major deployments: Foursquare, bit.ly, and CERN, for collecting Large Hadron Collider data.</li>
+</ul>
+
+<h2>
+<a id="some-details-1" class="anchor" href="#some-details-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Some details</h2>
+
+<ul>
+<li>JSON document database</li>
+<li>A mongo document is like a relational database row but without schema</li>
+<li>See Figure 20 on page 136</li>
+<li>Mongo can grow and change along with your data model</li>
+</ul>
+
+<h2>
+<a id="crud" class="anchor" href="#crud" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CRUD</h2>
+
+<ul>
+<li>Collection (similar to a bucket in Riak nomenclature) - just add initial record</li>
+<li>Mongo is schemaless - no need to define anything up front</li>
+</ul>
+
+<h3>
+<a id="following-code-createsinserts-a-towns-collection" class="anchor" href="#following-code-createsinserts-a-towns-collection" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Following code creates/inserts a towns collection:</h3>
+
+<pre><code>&gt; db.towns.insert({
+name: "New York",
+population: 22200000,
+last_census: ISODate("2009-07-31"),
+famous_for: [ "statue of liberty", "food" ],
+mayor : {
+name : "Michael Bloomberg",
+party : "I"
+}
+})
+</code></pre>
+
+<h3>
+<a id="to-show-collections" class="anchor" href="#to-show-collections" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>To Show collections</h3>
+
+<pre><code>&gt; show collections
+system.indexes
+towns
+</code></pre>
+
+<h3>
+<a id="listing-the-contents-with-find" class="anchor" href="#listing-the-contents-with-find" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Listing the contents with find</h3>
+
+<pre><code>&gt; db.towns.find()
+{
+"_id" : ObjectId("4d0ad975bb30773266f39fe3"),
+"name" : "New York",
+"population": 22200000,
+"last_census": "Fri Jul 31 2009 00:00:00 GMT-0700 (PDT)",
+"famous_for" : [ "statue of liberty", "food" ],
+"mayor" : { "name" : "Michael Bloomberg", "party" : "I" }
+}
+</code></pre>
+
+<h3>
+<a id="what-doesnt-it-support" class="anchor" href="#what-doesnt-it-support" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What doesn't it support?</h3>
+
+<p>It does not do server side joins like relational db.</p>
+
+<h3>
+<a id="objectid" class="anchor" href="#objectid" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ObjectID</h3>
+
+<p>Each record gets an objectid is always 12 bytes, composed of a
+timestamp, client machine ID, client process ID, and a 3-byte incremented
+counter.</p>
+
+<p>This allows every machine to handle it own records in a distributed fashion.</p>
+
+<h3>
+<a id="native-language" class="anchor" href="#native-language" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Native language</h3>
+
+<p>Javascript</p>
+
+<p>But it can be simple or as complex as map-reduce</p>
+
+<pre><code>&gt; db.help()
+&gt; db.towns.help()
+</code></pre>
+
+<p>db is just a JavaScript object:</p>
+
+<pre><code>&gt; typeof db
+object
+&gt; typeof db.towns
+object
+&gt; typeof db.towns.insert
+function
+</code></pre>
+
+<p>If you want the function definition, just leave off ():</p>
+
+<pre><code>db.towns.insert
+function (obj, _allow_dot) {
+if (!obj) {
+throw "no object passed to insert!";
+}
+if (!_allow_dot) {
+this._validateForStorage(obj);
+}
+if (typeof obj._id == "undefined") {
+var tmp = obj;
+obj = {_id:new ObjectId};
+for (var key in tmp) {
+obj[key] = tmp[key];
+}
+}
+this._mongo.insert(this._fullName, obj);
+this._lastID = obj._id;
+}
+</code></pre>
+
+<h4>
+<a id="adding-more-cities" class="anchor" href="#adding-more-cities" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Adding more cities</h4>
+
+<p>Define a function in JavaScript</p>
+
+<pre><code>function insertCity(
+name, population, last_census,
+famous_for, mayor_info
+) {
+db.towns.insert({
+name:name,
+population:population,
+last_census: ISODate(last_census),
+famous_for:famous_for,
+mayor : mayor_info
+});
+}
+</code></pre>
+
+<p>Now we can call insert:</p>
+
+<pre><code>insertCity("Punxsutawney", 6200, '2008-31-01',
+["phil the groundhog"], { name : "Jim Wehrle" }
+)
+insertCity("Portland", 582000, '2007-20-09',
+["beer", "food"], { name : "Sam Adams", party : "D" }
+)
+</code></pre>
+
+<h4>
+<a id="find-a-specific-document" class="anchor" href="#find-a-specific-document" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Find a specific document</h4>
+
+<pre><code>db.towns.find({ "_id" : ObjectId("4d0ada1fbb30773266f39fe4") })
+{
+"_id" : ObjectId("4d0ada1fbb30773266f39fe4"),
+"name" : "Punxsutawney",
+"population" : 6200,
+"last_census" : "Thu Jan 31 2008 00:00:00 GMT-0800 (PST)",
+"famous_for" : [ "phil the groundhog" ],
+"mayor" : { "name" : "Jim Wehrle" }
+}
+</code></pre>
+
+<h3>
+<a id="find-a-specific-document-but-getting-a-specific-column" class="anchor" href="#find-a-specific-document-but-getting-a-specific-column" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Find a specific document but getting a specific column</h3>
+
+<pre><code>db.towns.find({ _id : ObjectId("4d0ada1fbb30773266f39fe4") }, { name : 1 })
+{
+"_id" : ObjectId("4d0ada1fbb30773266f39fe4"),
+"name" : "Punxsutawney"
+}
+</code></pre>
+
+<h3>
+<a id="find-a-specific-document-but-get-all-but-a-specific-column" class="anchor" href="#find-a-specific-document-but-get-all-but-a-specific-column" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Find a specific document but get all but a specific column</h3>
+
+<pre><code>db.towns.find({ _id : ObjectId("4d0ada1fbb30773266f39fe4") }, { name : 0 })
+{
+"_id" : ObjectId("4d0ada1fbb30773266f39fe4"),
+"population" : 6200,
+"last_census" : "Thu Jan 31 2008 00:00:00 GMT-0800 (PST)",
+"famous_for" : [ "phil the groundhog" ]
+}
+</code></pre>
+
+<h3>
+<a id="ad-hoc-queries" class="anchor" href="#ad-hoc-queries" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Ad Hoc Queries</h3>
+
+<p>You can use regular expressions (you'll never get away from these):</p>
+
+<pre><code>db.towns.find(
+{ name : /^P/, population : { $lt : 10000 } },
+{ name : 1, population : 1 }
+){
+"name" : "Punxsutawney", "population" : 6200 }
+</code></pre>
+
+<p>Build criteria where the population must be between 10,000 and 1 million people.</p>
+
+<pre><code>var population_range = {}
+population_range['$lt'] = 1000000
+population_range['$gt'] = 10000
+db.towns.find(
+{ name : /^P/, population : population_range },
+{ name: 1 }
+)
+{ "_id" : ObjectId("4d0ada87bb30773266f39fe5"), "name" : "Portland" }
+</code></pre>
+
+<p>Query by matching exact values</p>
+
+<pre><code>db.towns.find(
+{ famous_for : 'food' },
+{ _id : 0, name : 1, famous_for : 1 }
+)
+{ "name" : "New York", "famous_for" : [ "statue of liberty", "food" ] }
+{ "name" : "Portland", "famous_for" : [ "beer", "food" ] }
+</code></pre>
+
+<p>Matching partial values</p>
+
+<pre><code>db.towns.find(
+{ famous_for : /statue/ },
+{ _id : 0, name : 1, famous_for : 1 }
+)
+{ "name" : "New York", "famous_for" : [ "statue of liberty", "food" ] }
+</code></pre>
+
+<p>Query by all matching values
+db.towns.find(
+{ famous_for : { $all : ['food', 'beer'] } },
+{ _id : 0, name:1, famous_for:1 }
+)
+{ "name" : "Portland", "famous_for" : [ "beer", "food" ] }</p>
+
+<pre><code>
+The lack of matching values:
+</code></pre>
+
+<p>db.towns.find(
+{ famous_for : { $nin : ['food', 'beer'] } },
+{ _id : 0, name : 1, famous_for : 1 }
+)
+{ "name" : "Punxsutawney", "famous_for" : [ "phil the groundhog" ] }</p>
+
+<pre><code>
+Awesome power is to query inside the nested structure:
+</code></pre>
+
+<p>db.towns.find(
+{ 'mayor.party' : 'I' },
+{ _id : 0, name : 1, mayor : 1 }
+)
+{
+"name" : "New York",
+"mayor" : {
+"name" : "Michael Bloomberg",
+"party" : "I"
+}
+}</p>
+
+<pre><code>
+### Updating
+</code></pre>
+
+<p>db.towns.update(
+{ _id : ObjectId("4d0ada87bb30773266f39fe5") },
+{ $set : { "state" : "OR" } }
+);</p>
+
+<pre><code>
+### Removing
+</code></pre>
+
+<p>var bad_bacon = {
+'exports.foods' : {
+$elemMatch : {
+name : 'bacon',
+tasty : false
+}
+}
+}
+db.countries.find( bad_bacon )
+{
+"_id" : ObjectId("4d0b7b84bb30773266f39fef"),
+"name" : "Canada",
+"exports" : {
+"foods" : [
+{
+"name" : "bacon",
+"tasty" : false
+},
+{
+"name" : "syrup",
+"tasty" : true
+}
+]
+}
+}</p>
+
+<pre><code>
+Found it (verified), so let's delete.
+</code></pre>
+
+<p>db.countries.remove( bad_bacon )
+db.countries.count()</p>
+
+<pre><code>
+### Functions on data
+You can even pass functions for it to run.
+</code></pre>
+
+<p>db.towns.find( function() {
+return this.population &gt; 6000 &amp;&amp; this.population &lt; 600000;
+} )</p>
+
+<pre><code></code></pre>
       </section>
       <footer>
         <p>Project maintained by <a href="https://github.com/Anderson-Lab">Anderson-Lab</a></p>

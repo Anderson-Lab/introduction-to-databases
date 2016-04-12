@@ -933,28 +933,27 @@ db.towns.find(
 { "name" : "New York", "famous_for" : [ "statue of liberty", "food" ] }
 </code></pre>
 
-<p>Query by all matching values
-db.towns.find(
+<p>Query by all matching values</p>
+
+<pre><code>db.towns.find(
 { famous_for : { $all : ['food', 'beer'] } },
 { _id : 0, name:1, famous_for:1 }
 )
-{ "name" : "Portland", "famous_for" : [ "beer", "food" ] }</p>
-
-<pre><code>
-The lack of matching values:
+{ "name" : "Portland", "famous_for" : [ "beer", "food" ] }
 </code></pre>
 
-<p>db.towns.find(
+<p>The lack of matching values:</p>
+
+<pre><code>db.towns.find(
 { famous_for : { $nin : ['food', 'beer'] } },
 { _id : 0, name : 1, famous_for : 1 }
 )
-{ "name" : "Punxsutawney", "famous_for" : [ "phil the groundhog" ] }</p>
-
-<pre><code>
-Awesome power is to query inside the nested structure:
+{ "name" : "Punxsutawney", "famous_for" : [ "phil the groundhog" ] }
 </code></pre>
 
-<p>db.towns.find(
+<p>Awesome power is to query inside the nested structure:</p>
+
+<pre><code>db.towns.find(
 { 'mayor.party' : 'I' },
 { _id : 0, name : 1, mayor : 1 }
 )
@@ -964,22 +963,22 @@ Awesome power is to query inside the nested structure:
 "name" : "Michael Bloomberg",
 "party" : "I"
 }
-}</p>
-
-<pre><code>
-### Updating
+}
 </code></pre>
 
-<p>db.towns.update(
+<h3>
+<a id="updating" class="anchor" href="#updating" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Updating</h3>
+
+<pre><code>db.towns.update(
 { _id : ObjectId("4d0ada87bb30773266f39fe5") },
 { $set : { "state" : "OR" } }
-);</p>
-
-<pre><code>
-### Removing
+);
 </code></pre>
 
-<p>var bad_bacon = {
+<h3>
+<a id="removing" class="anchor" href="#removing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Removing</h3>
+
+<pre><code>var bad_bacon = {
 'exports.foods' : {
 $elemMatch : {
 name : 'bacon',
@@ -1003,25 +1002,24 @@ db.countries.find( bad_bacon )
 }
 ]
 }
-}</p>
-
-<pre><code>
-Found it (verified), so let's delete.
+}
 </code></pre>
 
-<p>db.countries.remove( bad_bacon )
-db.countries.count()</p>
+<p>Found it (verified), so let's delete.</p>
 
-<pre><code>
-### Functions on data
-You can even pass functions for it to run.
+<pre><code>db.countries.remove( bad_bacon )
+db.countries.count()
 </code></pre>
 
-<p>db.towns.find( function() {
+<h3>
+<a id="functions-on-data" class="anchor" href="#functions-on-data" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Functions on data</h3>
+
+<p>You can even pass functions for it to run.</p>
+
+<pre><code>db.towns.find( function() {
 return this.population &gt; 6000 &amp;&amp; this.population &lt; 600000;
-} )</p>
-
-<pre><code></code></pre>
+} )
+</code></pre>
       </section>
       <footer>
         <p>Project maintained by <a href="https://github.com/Anderson-Lab">Anderson-Lab</a></p>
